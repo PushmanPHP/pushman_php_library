@@ -1,0 +1,16 @@
+{
+    "name": "pushman/phplib",
+    "description": "The Pushman.dfl.mn PHP Library",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "George Miller",
+            "email": "github@duffleman.co.uk"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "guzzlehttp/guzzle": "^5.0@dev"
+    }
+}
