@@ -23,7 +23,7 @@ class Pushman {
         $this->initializeConfig();
     }
 
-    public function push($event, $channel, array $payload = [])
+    public function push($event, $channel = 'public', array $payload = [])
     {
         $payload = $this->preparePayload($payload);
         $this->validateEvent($event);
@@ -57,7 +57,7 @@ class Pushman {
             ]
         ];
 
-        $response = $this->processRequest($url, $headers);
+        $response = $this->processRequest($url, $headers, 'get');
 
         return $response;
     }
@@ -78,15 +78,31 @@ class Pushman {
             ]
         ];
 
-        $response = $this->processRequest($url, $headers);
+        $response = $this->processRequest($url, $headers, 'get');
 
         return $response;
     }
 
-    private function processRequest($url, $headers) {
-        $response = $this->guzzle->post($url, $headers);
+    private function processRequest($url, $headers, $method = 'post') {
+        if($method == 'post') {
+            $response = $this->guzzle->post($url, $headers);
+        } else {
+            $params = $this->processGetParams($headers);
+            $response = $this->guzzle->get($url . $params);
+        }
         $response = $this->processResponse($response);
         return $response;
+    }
+
+    private function processGetParams($headers) {
+        $paramStrings = [];
+        foreach($headers['body'] as $key => $value) {
+            $paramStrings[] = $key . "=" . $value;
+        }
+        $paramString = "?";
+        $paramString .= implode("&", $paramStrings);
+
+        return $paramString;
     }
 
     private function initializeGuzzle()
