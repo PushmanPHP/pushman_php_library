@@ -12,7 +12,46 @@ use Pushman\PHPLib\Pushman;
 
 $pushman = new Pushman('private-key-goes-here');
 
-$response = $pushman->push('kittens_are_cute', ['foo' => 'asdasdasdasd']);
+$response = $pushman->push('kittens_are_cute', 'public', ['foo' => 'asdasdasdasd']);
 ```
 
-`$response` will always return a JSON payload with `status` and `message`.
+On your own pushman instance:
+
+```php
+use Pushman\PHPLib\Pushman;
+
+$pushman = new Pushman('private-key-goes-here, ['url' => 'http://pushman.yoursite.com']);
+
+$response = $pushman->push('kittens_are_cute', 'public', ['foo' => 'asdasdasdasd']);
+```
+
+`$response` will always return a JSON payload with `status` and `message` along with any other relevant information about your event.
+
+### Getting Information
+
+Because Pushman can generate your public token every 60 minutes, updating your clients should be an automatic process. You can use the following code to grab the public token of any channel.
+
+```php
+use Pushman\PHPLib\Pushman;
+
+$pushman = new Pushman('private-key-goes-here');
+
+$response = $pushman->token('public');
+$token = $response['token'];
+```
+
+And you can load all channel information by the `channels()` and `channel()` method.
+
+```php
+use Pushman\PHPLib\Pushman;
+
+$pushman = new Pushman('private-key-goes-here');
+
+$response = $pushman->channel('auth');
+$max_connections = $response['max_connections'];
+
+$response = $pushman->channels();
+foreach($response as $channel) {
+	echo("Found channel {$channel['name']}.\n");
+}
+```

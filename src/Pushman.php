@@ -2,6 +2,7 @@
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\Response;
+use Pushman\PHPLib\Exceptions\InvalidChannelException;
 use Pushman\PHPLib\Exceptions\InvalidConfigException;
 use Pushman\PHPLib\Exceptions\InvalidEventException;
 
@@ -10,7 +11,6 @@ class Pushman {
     private $privateKey;
     private $guzzle;
     private $config;
-    private $version = 0;
 
     public function __construct($privateKey, array $config = [], Client $guzzle = null)
     {
@@ -23,23 +23,69 @@ class Pushman {
         $this->initializeConfig();
     }
 
-    public function push($type, array $payload = [])
+    public function push($event, $channel, array $payload = [])
     {
         $payload = $this->preparePayload($payload);
-        $this->validateType($type);
+        $this->validateEvent($event);
+        $channel = $this->validateChannel($channel);
 
         $url = $this->getURL();
 
-        $response = $this->guzzle->post($url, [
+        $headers = [
             'body' => [
                 'private' => $this->privateKey,
-                'type'    => $type,
+                'channel' => $channel,
+                'event'   => $event,
                 'payload' => $payload
             ]
-        ]);
+        ];
 
+        $response = $this->processRequest($url, $headers);    
+
+        return $response;
+    }
+
+    public function channel($channel) {
+        $channel = $this->validateChannel($channel);
+
+        $url = $this->getURL('channel');
+
+        $headers = [
+            'body' => [
+                'private' => $this->privateKey,
+                'channel' => $channel
+            ]
+        ];
+
+        $response = $this->processRequest($url, $headers);
+
+        return $response;
+    }
+
+    public function token($channel) {
+        $channel = $this->channel($channel);
+
+        return ['token' => $channel['public'], 'expires' => $channel['token_expires']];
+    }
+
+    public function channels()
+    {
+        $url = $this->getURL('channels');
+
+        $headers = [
+            'body' => [
+                'private' => $this->privateKey
+            ]
+        ];
+
+        $response = $this->processRequest($url, $headers);
+
+        return $response;
+    }
+
+    private function processRequest($url, $headers) {
+        $response = $this->guzzle->post($url, $headers);
         $response = $this->processResponse($response);
-
         return $response;
     }
 
@@ -63,17 +109,6 @@ class Pushman {
         }
     }
 
-    private function validateType($type)
-    {
-        if (empty($type)) {
-            throw new InvalidEventException('You must provide an event name.');
-        }
-
-        if (strpos($type, ' ') !== false) {
-            throw new InvalidEventException('No spaces are allowed in event names.');
-        }
-    }
-
     private function preparePayload($payload)
     {
         $payload = json_encode($payload);
@@ -81,14 +116,19 @@ class Pushman {
         return $payload;
     }
 
-    private function getURL()
+    private function getURL($endpoint = null)
     {
-        return $this->config['url'] . $this->getEndpoint();
+        if(is_null($endpoint)) {
+            $endpoint = $this->getEndpoint();
+        } else {
+            $endpoint = '/api/' . $endpoint;
+        }
+        return $this->config['url'] . $endpoint;
     }
 
     private function getEndpoint()
     {
-        return '/api/v' . $this->version . '/push';
+        return '/api/push';
     }
 
     private function processResponse(Response $response)
@@ -99,10 +139,33 @@ class Pushman {
         return $response;
     }
 
+    private function validateEvent($event)
+    {
+        if (empty($event)) {
+            throw new InvalidEventException('You must provide an event name.');
+        }
+
+        if (strpos($event, ' ') !== false) {
+            throw new InvalidEventException('No spaces are allowed in event names.');
+        }
+    }
+
     private function validatePrivatekey($private)
     {
         if (strlen($private) !== 60) {
             throw new InvalidConfigException('This cannot possibly be a valid private key.');
         }
+    }
+
+    private function validateChannel($channel = null)
+    {
+        if (is_null($channel) OR empty($channel)) {
+            return 'public';
+        }
+        if (strpos($channel, ' ') !== false) {
+            throw new InvalidChannelException('No spaces are allowed in channel names.');
+        }
+
+        return $channel;
     }
 }
