@@ -1,6 +1,8 @@
 # pushman_php
 The Pushman PHP Library
 
+[![Latest Stable Version](https://poser.pugx.org/pushman/phplib/v/stable)](https://packagist.org/packages/pushman/phplib) [![Total Downloads](https://poser.pugx.org/pushman/phplib/downloads)](https://packagist.org/packages/pushman/phplib) [![Latest Unstable Version](https://poser.pugx.org/pushman/phplib/v/unstable)](https://packagist.org/packages/pushman/phplib) [![License](https://poser.pugx.org/pushman/phplib/license)](https://packagist.org/packages/pushman/phplib)
+
 ## Installation
 ```php
 composer require pushman/phplib
