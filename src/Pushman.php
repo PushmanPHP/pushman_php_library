@@ -27,16 +27,16 @@ class Pushman {
     {
         $payload = $this->preparePayload($payload);
         $this->validateEvent($event);
-        $channel = $this->validateChannel($channel);
+        $channels = $this->validateChannel($channel);
 
         $url = $this->getURL();
 
         $headers = [
             'body' => [
-                'private' => $this->privateKey,
-                'channel' => $channel,
-                'event'   => $event,
-                'payload' => $payload
+                'private'  => $this->privateKey,
+                'channels' => $channels,
+                'event'    => $event,
+                'payload'  => $payload
             ]
         ];
 
@@ -151,7 +151,7 @@ class Pushman {
     {
         $response = $response->getBody()->getContents();
         $response = json_decode($response, true);
-
+  
         return $response;
     }
 
@@ -173,15 +173,20 @@ class Pushman {
         }
     }
 
-    private function validateChannel($channel = null)
+    private function validateChannel($channels = [])
     {
-        if (is_null($channel) OR empty($channel)) {
-            return 'public';
+        if(is_string($channels)) {
+            $channels = array($channels);
         }
-        if (strpos($channel, ' ') !== false) {
-            throw new InvalidChannelException('No spaces are allowed in channel names.');
+        if (empty($channels)) {
+            return ['public'];
+        }
+        foreach($channels as $channel) {
+            if (strpos($channel, ' ') !== false) {
+                throw new InvalidChannelException('No spaces are allowed in channel names.');
+            }
         }
 
-        return $channel;
+        return json_encode($channels);
     }
 }
