@@ -865,6 +865,8 @@ body .markdown-body
 
 <p>The Pushman PHP Library</p>
 
+<p><a href="https://packagist.org/packages/pushman/phplib"><img src="https://camo.githubusercontent.com/35ca26a9a179129c30edb032170564164f9d83ed/68747470733a2f2f706f7365722e707567782e6f72672f707573686d616e2f7068706c69622f762f737461626c65" alt="Latest Stable Version" data-canonical-src="https://poser.pugx.org/pushman/phplib/v/stable" style="max-width:100%;"></a> <a href="https://packagist.org/packages/pushman/phplib"><img src="https://camo.githubusercontent.com/016d4bb57bfebe34db8336a244f1e5ea2a6f4c5d/68747470733a2f2f706f7365722e707567782e6f72672f707573686d616e2f7068706c69622f646f776e6c6f616473" alt="Total Downloads" data-canonical-src="https://poser.pugx.org/pushman/phplib/downloads" style="max-width:100%;"></a> <a href="https://packagist.org/packages/pushman/phplib"><img src="https://camo.githubusercontent.com/fe01748d7ab444c6a4b717f2b9377965008fac92/68747470733a2f2f706f7365722e707567782e6f72672f707573686d616e2f7068706c69622f762f756e737461626c65" alt="Latest Unstable Version" data-canonical-src="https://poser.pugx.org/pushman/phplib/v/unstable" style="max-width:100%;"></a> <a href="https://packagist.org/packages/pushman/phplib"><img src="https://camo.githubusercontent.com/fd03559c51c1f21fcc20122be7c6fc260829e849/68747470733a2f2f706f7365722e707567782e6f72672f707573686d616e2f7068706c69622f6c6963656e7365" alt="License" data-canonical-src="https://poser.pugx.org/pushman/phplib/license" style="max-width:100%;"></a></p>
+
 <h2>
 <a id="user-content-installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
 
@@ -877,7 +879,49 @@ body .markdown-body
 <span class="pl-s1"></span>
 <span class="pl-s1"><span class="pl-smi">$pushman</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">Pushman</span>(<span class="pl-s"><span class="pl-pds">'</span>private-key-goes-here<span class="pl-pds">'</span></span>);</span>
 <span class="pl-s1"></span>
-<span class="pl-s1"><span class="pl-smi">$response</span> <span class="pl-k">=</span> <span class="pl-smi">$pushman</span><span class="pl-k">-&gt;</span>push(<span class="pl-s"><span class="pl-pds">'</span>kittens_are_cute<span class="pl-pds">'</span></span>, [<span class="pl-s"><span class="pl-pds">'</span>foo<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>asdasdasdasd<span class="pl-pds">'</span></span>]);</span></pre></div>
+<span class="pl-s1"><span class="pl-smi">$response</span> <span class="pl-k">=</span> <span class="pl-smi">$pushman</span><span class="pl-k">-&gt;</span>push(<span class="pl-s"><span class="pl-pds">'</span>kittens_are_cute<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>public<span class="pl-pds">'</span></span>, [<span class="pl-s"><span class="pl-pds">'</span>foo<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>asdasdasdasd<span class="pl-pds">'</span></span>]);</span></pre></div>
 
-<p><code>$response</code> will always return a JSON payload with <code>status</code> and <code>message</code>.</p>
+<p>As of version 2.1.0 in Pushman, you can push to multiple channels by feeding an array into the channels variable.</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">use</span> <span class="pl-c1">Pushman\PHPLib\Pushman</span>;</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-smi">$pushman</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">Pushman</span>(<span class="pl-s"><span class="pl-pds">'</span>private-key-goes-here<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-smi">$response</span> <span class="pl-k">=</span> <span class="pl-smi">$pushman</span><span class="pl-k">-&gt;</span>push(<span class="pl-s"><span class="pl-pds">'</span>kittens_are_cute<span class="pl-pds">'</span></span>, [<span class="pl-s"><span class="pl-pds">'</span>public<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>auth], [<span class="pl-pds">'</span></span><span class="pl-c1">foo</span><span class="pl-s"><span class="pl-pds">'</span> =&gt; <span class="pl-pds">'</span></span><span class="pl-c1">asdasdasdasd</span><span class="pl-s"><span class="pl-pds">'</span>]);</span></span></pre></div>
+
+<p>On your own pushman instance:</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">use</span> <span class="pl-c1">Pushman\PHPLib\Pushman</span>;</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-smi">$pushman</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">Pushman</span>(<span class="pl-s"><span class="pl-pds">'</span>private-key-goes-here, [<span class="pl-pds">'</span></span><span class="pl-c1">url</span><span class="pl-s"><span class="pl-pds">'</span> =&gt; <span class="pl-pds">'</span></span><span class="pl-c1">http</span>:<span class="pl-c">//pushman.yoursite.com']);</span></span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-smi">$response</span> <span class="pl-k">=</span> <span class="pl-smi">$pushman</span><span class="pl-k">-&gt;</span>push(<span class="pl-s"><span class="pl-pds">'</span>kittens_are_cute<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>public<span class="pl-pds">'</span></span>, [<span class="pl-s"><span class="pl-pds">'</span>foo<span class="pl-pds">'</span></span> <span class="pl-k">=&gt;</span> <span class="pl-s"><span class="pl-pds">'</span>asdasdasdasd<span class="pl-pds">'</span></span>]);</span></pre></div>
+
+<p><code>$response</code> will always return a JSON payload with <code>status</code> and <code>message</code> along with any other relevant information about your event.</p>
+
+<h3>
+<a id="user-content-getting-information" class="anchor" href="#getting-information" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting Information</h3>
+
+<p>Because Pushman can generate your public token every 60 minutes, updating your clients should be an automatic process. You can use the following code to grab the public token of any channel.</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">use</span> <span class="pl-c1">Pushman\PHPLib\Pushman</span>;</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-smi">$pushman</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">Pushman</span>(<span class="pl-s"><span class="pl-pds">'</span>private-key-goes-here<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-smi">$response</span> <span class="pl-k">=</span> <span class="pl-smi">$pushman</span><span class="pl-k">-&gt;</span>token(<span class="pl-s"><span class="pl-pds">'</span>public<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"><span class="pl-smi">$token</span> <span class="pl-k">=</span> <span class="pl-smi">$response</span>[<span class="pl-s"><span class="pl-pds">'</span>token<span class="pl-pds">'</span></span>];</span></pre></div>
+
+<p>And you can load all channel information by the <code>channels()</code> and <code>channel()</code> method.</p>
+
+<div class="highlight highlight-php"><pre><span class="pl-s1"><span class="pl-k">use</span> <span class="pl-c1">Pushman\PHPLib\Pushman</span>;</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-smi">$pushman</span> <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">Pushman</span>(<span class="pl-s"><span class="pl-pds">'</span>private-key-goes-here<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-smi">$response</span> <span class="pl-k">=</span> <span class="pl-smi">$pushman</span><span class="pl-k">-&gt;</span>channel(<span class="pl-s"><span class="pl-pds">'</span>auth<span class="pl-pds">'</span></span>);</span>
+<span class="pl-s1"><span class="pl-smi">$max_connections</span> <span class="pl-k">=</span> <span class="pl-smi">$response</span>[<span class="pl-s"><span class="pl-pds">'</span>max_connections<span class="pl-pds">'</span></span>];</span>
+<span class="pl-s1"></span>
+<span class="pl-s1"><span class="pl-smi">$response</span> <span class="pl-k">=</span> <span class="pl-smi">$pushman</span><span class="pl-k">-&gt;</span>channels();</span>
+<span class="pl-s1"><span class="pl-k">foreach</span>(<span class="pl-smi">$response</span> <span class="pl-k">as</span> <span class="pl-smi">$channel</span>) {</span>
+<span class="pl-s1">    <span class="pl-c1">echo</span>(<span class="pl-s"><span class="pl-pds">"</span>Found channel {<span class="pl-smi">$channel</span>[<span class="pl-s"><span class="pl-pds">'</span>name<span class="pl-pds">'</span></span>]}.<span class="pl-cce">\n</span><span class="pl-pds">"</span></span>);</span>
+<span class="pl-s1">}</span></pre></div>
 </article></body></html>

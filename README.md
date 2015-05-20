@@ -11,17 +11,24 @@ composer require pushman/phplib
 ## Usage
 ```php
 use Pushman\PHPLib\Pushman;
-
 $pushman = new Pushman('private-key-goes-here');
 
 $response = $pushman->push('kittens_are_cute', 'public', ['foo' => 'asdasdasdasd']);
+```
+
+As of version 2.1.0 in Pushman, you can push to multiple channels by feeding an array into the channels variable.
+
+```php
+use Pushman\PHPLib\Pushman;
+$pushman = new Pushman('private-key-goes-here');
+
+$response = $pushman->push('kittens_are_cute', ['public', 'auth'], ['foo' => 'asdasdasdasd']);
 ```
 
 On your own pushman instance:
 
 ```php
 use Pushman\PHPLib\Pushman;
-
 $pushman = new Pushman('private-key-goes-here, ['url' => 'http://pushman.yoursite.com']);
 
 $response = $pushman->push('kittens_are_cute', 'public', ['foo' => 'asdasdasdasd']);
@@ -35,7 +42,6 @@ Because Pushman can generate your public token every 60 minutes, updating your c
 
 ```php
 use Pushman\PHPLib\Pushman;
-
 $pushman = new Pushman('private-key-goes-here');
 
 $response = $pushman->token('public');
@@ -46,7 +52,6 @@ And you can load all channel information by the `channels()` and `channel()` met
 
 ```php
 use Pushman\PHPLib\Pushman;
-
 $pushman = new Pushman('private-key-goes-here');
 
 $response = $pushman->channel('auth');
