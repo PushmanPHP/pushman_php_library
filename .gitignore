@@ -2,6 +2,7 @@
 /node_modules
 /storage/database.sqlite
 /.idea
+/bin
 .phpstorm.meta.php
 .env
 test.php
