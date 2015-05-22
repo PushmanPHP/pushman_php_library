@@ -1,0 +1,1 @@
+{"id":1,"name":"public","public":"zEsBqcOt2atW4zmaAXn9","refreshes":"no","max_connections":3,"active_users":0,"events_fired":12,"created_at":"2015-05-18 04:19:59","token_expires":{"date":"2015-05-21 21:00:00.000000","timezone_type":3,"timezone":"UTC"}}

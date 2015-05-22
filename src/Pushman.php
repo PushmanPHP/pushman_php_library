@@ -8,6 +8,7 @@ use Pushman\PHPLib\Exceptions\InvalidEventException;
 
 class Pushman {
 
+    private static $url = 'http://live.pushman.dfl.mn';
     private $privateKey;
     private $guzzle;
     private $config;
@@ -40,13 +41,14 @@ class Pushman {
             ]
         ];
 
-        $response = $this->processRequest($url, $headers);    
+        $response = $this->processRequest($url, $headers);
 
         return $response;
     }
 
-    public function channel($channel) {
-        $channel = $this->validateChannel($channel);
+    public function channel($channel)
+    {
+        $channel = $this->validateChannel($channel, false);
 
         $url = $this->getURL('channel');
 
@@ -62,7 +64,8 @@ class Pushman {
         return $response;
     }
 
-    public function token($channel) {
+    public function token($channel)
+    {
         $channel = $this->channel($channel);
 
         return ['token' => $channel['public'], 'expires' => $channel['token_expires']];
@@ -83,20 +86,23 @@ class Pushman {
         return $response;
     }
 
-    private function processRequest($url, $headers, $method = 'post') {
-        if($method == 'post') {
+    private function processRequest($url, $headers, $method = 'post')
+    {
+        if ($method == 'post') {
             $response = $this->guzzle->post($url, $headers);
         } else {
             $params = $this->processGetParams($headers);
             $response = $this->guzzle->get($url . $params);
         }
         $response = $this->processResponse($response);
+
         return $response;
     }
 
-    private function processGetParams($headers) {
+    private function processGetParams($headers)
+    {
         $paramStrings = [];
-        foreach($headers['body'] as $key => $value) {
+        foreach ($headers['body'] as $key => $value) {
             $paramStrings[] = $key . "=" . $value;
         }
         $paramString = "?";
@@ -115,7 +121,7 @@ class Pushman {
     private function initializeConfig()
     {
         if (empty($this->config['url'])) {
-            $this->config['url'] = 'http://pushman.dfl.mn';
+            $this->config['url'] = static::$url;
         }
 
         $this->config['url'] = rtrim($this->config['url'], '/');
@@ -134,11 +140,12 @@ class Pushman {
 
     private function getURL($endpoint = null)
     {
-        if(is_null($endpoint)) {
+        if (is_null($endpoint)) {
             $endpoint = $this->getEndpoint();
         } else {
             $endpoint = '/api/' . $endpoint;
         }
+
         return $this->config['url'] . $endpoint;
     }
 
@@ -151,7 +158,7 @@ class Pushman {
     {
         $response = $response->getBody()->getContents();
         $response = json_decode($response, true);
-  
+
         return $response;
     }
 
@@ -173,20 +180,31 @@ class Pushman {
         }
     }
 
-    private function validateChannel($channels = [])
+    private function validateChannel($channels = [], $returnAsArray = true)
     {
-        if(is_string($channels)) {
-            $channels = array($channels);
-        }
-        if (empty($channels)) {
-            return ['public'];
-        }
-        foreach($channels as $channel) {
-            if (strpos($channel, ' ') !== false) {
+        if ($returnAsArray) {
+            if (is_string($channels)) {
+                $channels = [$channels];
+            }
+            if (empty($channels)) {
+                return ['public'];
+            }
+            foreach ($channels as $channel) {
+                if (strpos($channel, ' ') !== false) {
+                    throw new InvalidChannelException('No spaces are allowed in channel names.');
+                }
+            }
+
+            return json_encode($channels);
+        } else {
+            if (empty($channels)) {
+                return 'public';
+            }
+            if (strpos($channels, ' ') !== false) {
                 throw new InvalidChannelException('No spaces are allowed in channel names.');
             }
-        }
 
-        return json_encode($channels);
+            return $channels;
+        }
     }
 }
