@@ -80,7 +80,7 @@ class PushmanSpec extends ObjectBehavior {
         $eventPush = $this->push('test_event');
         $eventPush->shouldBeArray();
         $eventPush->shouldHaveCount(7);
-        $eventPush->shouldHaveKeyWithValue('status', 'value');
+        $eventPush->shouldHaveKeyWithValue('status', 'success');
     }
 
     /**

@@ -1,7 +1,7 @@
 # pushman_php
 The Pushman PHP Library
 
-[![Latest Stable Version](https://poser.pugx.org/pushman/phplib/v/stable)](https://packagist.org/packages/pushman/phplib) [![Build Status](https://travis-ci.org/PushmanPHP/pushman_php_library.svg)](https://travis-ci.org/PushmanPHP/pushman_php_library) [![Total Downloads](https://poser.pugx.org/pushman/phplib/downloads)](https://packagist.org/packages/pushman/phplib) [![Latest Unstable Version](https://poser.pugx.org/pushman/phplib/v/unstable)](https://packagist.org/packages/pushman/phplib) [![License](https://poser.pugx.org/pushman/phplib/license)](https://packagist.org/packages/pushman/phplib)
+[![Latest Stable Version](https://poser.pugx.org/pushman/phplib/v/stable)](https://packagist.org/packages/pushman/phplib) [![Build Status](https://travis-ci.org/PushmanPHP/pushman_php_library.svg?branch=master)](https://travis-ci.org/PushmanPHP/pushman_php_library) [![Total Downloads](https://poser.pugx.org/pushman/phplib/downloads)](https://packagist.org/packages/pushman/phplib) [![Latest Unstable Version](https://poser.pugx.org/pushman/phplib/v/unstable)](https://packagist.org/packages/pushman/phplib) [![License](https://poser.pugx.org/pushman/phplib/license)](https://packagist.org/packages/pushman/phplib)
 
 ## Installation
 ```php
