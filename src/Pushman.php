@@ -24,6 +24,11 @@ class Pushman {
         $this->initializeConfig();
     }
 
+    public function setClient(Client $client)
+    {
+        $this->guzzle = $client;
+    }
+
     public function push($event, $channel = 'public', array $payload = [])
     {
         $payload = $this->preparePayload($payload);
