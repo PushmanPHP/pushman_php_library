@@ -6,7 +6,13 @@ use GuzzleHttp\Stream\Stream;
 use GuzzleHttp\Subscriber\Mock;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
+use Pushman\PHPLib\Pushman;
 
+/**
+ * Class PushmanSpec
+ * @package spec\Pushman\PHPLib
+ * @mixin Pushman
+ */
 class PushmanSpec extends ObjectBehavior {
 
     /**
@@ -105,6 +111,73 @@ class PushmanSpec extends ObjectBehavior {
     function it_should_now_allow_spaces_in_channel_names()
     {
         $this->shouldThrow('Pushman\PHPLib\Exceptions\InvalidChannelException')->duringPush('validEventName', 'a channel');
+    }
+
+    /**
+     * It can build a new channel when given a string.
+     */
+    function you_can_build_a_new_channel()
+    {
+        $client = $this->buildMockClient('new_channel');
+        $this->setClient($client);
+
+        $channel = $this->buildChannel('my_channel');
+        $channel->shouldBeArray();
+        $channel->shouldHaveCount(1);
+        $channel->shouldHaveKeyWithValue('name', 'my_channel');
+    }
+
+    /**
+     * You can build a new set of channels by giving it an array of channels
+     */
+    function you_can_build_a_set_of_new_channels_by_using_an_array()
+    {
+        $client = $this->buildMockClient('new_channels');
+        $this->setClient($client);
+
+        $channels = $this->buildChannel(['my_chan1', 'my_chan2']);
+        $channels->shouldBeArray();
+        $channels->shouldHaveCount(2);
+    }
+
+    function it_can_destroy_a_channel()
+    {
+        $client = $this->buildMockClient('delete');
+        $this->setClient($client);
+
+        $res = $this->destroyChannel('my_channel');
+        $res->shouldBeArray();
+        $res->shouldHaveCount(4);
+        $res->shouldHaveKeyWithValue('status', 'success');
+        $res->shouldHaveKeyWithValue('deleted', 'my_channel');
+    }
+
+    function it_can_destroy_an_array_of_channels()
+    {
+        $client = $this->buildMockClient('delete_array');
+        $this->setClient($client);
+
+        $res = $this->destroyChannel(['my_channel', 'my_channel2', 'my_channel3']);
+        $res->shouldHaveCount(4);
+        $res->shouldHaveKeyWithValue('failed_on', '');
+        $res->shouldHaveKeyWithvalue('status', 'success');
+    }
+
+    function it_can_destroy_some_of_that_array_but_not_all_of_it()
+    {
+        $client = $this->buildMockClient('delete_half');
+        $this->setClient($client);
+
+        $res = $this->destroyChannel(['my_channel', 'public']);
+        $res->shouldHaveCount(4);
+        $res->shouldHaveKeyWithValue('failed_on', 'public');
+        $res->shouldHaveKeyWithvalue('status', 'success');
+        $res->shouldHaveKeyWithvalue('deleted', 'my_channel');
+    }
+
+    function it_wont_destroy_the_public_channel()
+    {
+        $this->shouldThrow('Pushman\PHPLib\Exceptions\InvalidDeleteRequestException')->duringDestroyChannel('public');
     }
 
     /**

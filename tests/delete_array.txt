@@ -1,0 +1,1 @@
+{"status":"success","message":"","deleted":"my_channel,my_channel2,my_channel3","failed_on":""}

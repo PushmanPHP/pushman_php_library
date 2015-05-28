@@ -1,0 +1,1 @@
+[{"name":"my_channel","refreshes":"no","max_connections":3,"public":"wXLaUAAEhSfl3TMP3JCK","created_at":"2015-05-28 15:07:26","id":31}]
