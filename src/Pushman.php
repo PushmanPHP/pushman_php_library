@@ -160,7 +160,7 @@ class Pushman {
      * @return \GuzzleHttp\Message\Response|mixed|string|void
      * @throws \Pushman\PHPLib\Exceptions\InvalidChannelException
      */
-    public function buildChannel($channel)
+    public function buildChannel($channel, $max = 3, $refreshes = 'no')
     {
         $channels = $this->validateChannel($channel);
 
@@ -168,8 +168,10 @@ class Pushman {
 
         $headers = [
             'body' => [
-                'private' => $this->privateKey,
-                'channel' => $channels
+                'private'   => $this->privateKey,
+                'channel'   => $channels,
+                'max'       => $max,
+                'refreshes' => $refreshes
             ]
         ];
 
