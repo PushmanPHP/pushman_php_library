@@ -160,7 +160,7 @@ class PushmanSpec extends ObjectBehavior {
         $res = $this->destroyChannel(['my_channel', 'my_channel2', 'my_channel3']);
         $res->shouldHaveCount(4);
         $res->shouldHaveKeyWithValue('failed_on', '');
-        $res->shouldHaveKeyWithvalue('status', 'success');
+        $res->shouldHaveKeyWithValue('status', 'success');
     }
 
     function it_can_destroy_some_of_that_array_but_not_all_of_it()
@@ -168,11 +168,11 @@ class PushmanSpec extends ObjectBehavior {
         $client = $this->buildMockClient('delete_half');
         $this->setClient($client);
 
-        $res = $this->destroyChannel(['my_channel', 'public']);
+        $res = $this->destroyChannel(['my_channel', 'does_not_exist']);
         $res->shouldHaveCount(4);
-        $res->shouldHaveKeyWithValue('failed_on', 'public');
-        $res->shouldHaveKeyWithvalue('status', 'success');
-        $res->shouldHaveKeyWithvalue('deleted', 'my_channel');
+        $res->shouldHaveKeyWithValue('failed_on', 'does_not_exist');
+        $res->shouldHaveKeyWithValue('status', 'success');
+        $res->shouldHaveKeyWithValue('deleted', 'my_channel');
     }
 
     function it_wont_destroy_the_public_channel()
