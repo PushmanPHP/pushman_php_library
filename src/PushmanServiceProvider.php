@@ -16,11 +16,8 @@ class PushmanServiceProvider extends ServiceProvider {
         app('Illuminate\Broadcasting\BroadcastManager')->extend(
             'pushman',
             function ($app) {
-                $private = env('PUSHMAN_PRIVATE');
-                $url = env('PUSHMAN_URL', 'http://pushman.dfl.mn');
-
                 return new PushmanBroadcaster(
-                    new Pushman($private, ['url' => $url])
+                    app('pushman')
                 );
             }
         );
@@ -33,6 +30,11 @@ class PushmanServiceProvider extends ServiceProvider {
      */
     public function register()
     {
-        //
+        $this->app->singleton('pushman', function($app) {
+            $private = env('PUSHMAN_PRIVATE');
+            $url = env('PUSHMAN_URL', 'http://pushman.dfl.mn');
+
+            return new Pushman($private, ['url' => $url']);
+        });
     }
 }
