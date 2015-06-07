@@ -32,9 +32,9 @@ class PushmanServiceProvider extends ServiceProvider {
     {
         $this->app->singleton('pushman', function($app) {
             $private = env('PUSHMAN_PRIVATE');
-            $url = env('PUSHMAN_URL', 'http://pushman.dfl.mn');
+            $url = env('PUSHMAN_URL', 'http://live.pushman.dfl.mn');
 
-            return new Pushman($private, ['url' => $url']);
+            return new Pushman($private, ['url' => $url]);
         });
     }
 }
