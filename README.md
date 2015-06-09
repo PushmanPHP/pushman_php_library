@@ -113,3 +113,7 @@ foreach($response as $channel) {
 	echo("Found channel {$channel['name']}.\n");
 }
 ```
+
+## Todo for Future Versions
+* Add endpoint support for /api/subcribers.
+* Add some sort of trait/interface so you can append it to your existing user model and broadcast out easily to that specific user.
