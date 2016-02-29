@@ -1,13 +1,16 @@
-<?php namespace Pushman\PHPLib;
+<?php
+
+namespace Pushman\PHPLib;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Message\Response;
+use GuzzleHttp\Psr7\Response;
 use Pushman\PHPLib\Exceptions\InvalidChannelException;
 use Pushman\PHPLib\Exceptions\InvalidConfigException;
 use Pushman\PHPLib\Exceptions\InvalidDeleteRequestException;
 use Pushman\PHPLib\Exceptions\InvalidEventException;
 
-class Pushman {
+class Pushman
+{
 
     /**
      * Our Pushman instance URL. Defaults to live.
@@ -54,201 +57,16 @@ class Pushman {
     }
 
     /**
-     * Set the client after initialisation. Used only for testing.
+     * Validate a private key.
      *
-     * @param \GuzzleHttp\Client $client
+     * @param $private
+     * @throws \Pushman\PHPLib\Exceptions\InvalidConfigException
      */
-    public function setClient(Client $client)
+    private function validatePrivatekey($private)
     {
-        $this->guzzle = $client;
-    }
-
-    /**
-     * Push an event to Pushman, the most used command.
-     *
-     * @param        $event
-     * @param string $channel
-     * @param array  $payload
-     * @return \GuzzleHttp\Message\Response|mixed|string|void
-     * @throws \Pushman\PHPLib\Exceptions\InvalidChannelException
-     * @throws \Pushman\PHPLib\Exceptions\InvalidEventException
-     */
-    public function push($event, $channel = 'public', array $payload = [])
-    {
-        $payload = $this->preparePayload($payload);
-        $this->validateEvent($event);
-        $channels = $this->validateChannel($channel);
-
-        $url = $this->getURL();
-
-        $headers = [
-            'body' => [
-                'private'  => $this->privateKey,
-                'channels' => $channels,
-                'event'    => $event,
-                'payload'  => $payload
-            ]
-        ];
-
-        $response = $this->processRequest($url, $headers);
-
-        return $response;
-    }
-
-    /**
-     * Get information on a single channel.
-     *
-     * @param $channel
-     * @return \GuzzleHttp\Message\Response|mixed|string|void
-     * @throws \Pushman\PHPLib\Exceptions\InvalidChannelException
-     */
-    public function channel($channel)
-    {
-        $channel = $this->validateChannel($channel, false);
-
-        $url = $this->getURL('channel');
-
-        $headers = [
-            'body' => [
-                'private' => $this->privateKey,
-                'channel' => $channel
-            ]
-        ];
-
-        $response = $this->processRequest($url, $headers, 'get');
-
-        return $response;
-    }
-
-    /**
-     * Get the token of a single channel.
-     *
-     * @param $channel
-     * @return array
-     */
-    public function token($channel)
-    {
-        $channel = $this->channel($channel);
-
-        return ['token' => $channel['public'], 'expires' => $channel['token_expires']];
-    }
-
-    /**
-     * Get an array of channels in the site.
-     *
-     * @return \GuzzleHttp\Message\Response|mixed|string|void
-     */
-    public function channels()
-    {
-        $url = $this->getURL('channels');
-
-        $headers = [
-            'body' => [
-                'private' => $this->privateKey
-            ]
-        ];
-
-        $response = $this->processRequest($url, $headers, 'get');
-
-        return $response;
-    }
-
-    /**
-     * Build a new channel or set of channels.
-     *
-     * @param $channel
-     * @return \GuzzleHttp\Message\Response|mixed|string|void
-     * @throws \Pushman\PHPLib\Exceptions\InvalidChannelException
-     */
-    public function buildChannel($channel, $max = 3, $refreshes = 'no')
-    {
-        $channels = $this->validateChannel($channel);
-
-        $url = $this->getURL('channel');
-
-        $headers = [
-            'body' => [
-                'private'   => $this->privateKey,
-                'channel'   => $channels,
-                'max'       => $max,
-                'refreshes' => $refreshes
-            ]
-        ];
-
-        $response = $this->processRequest($url, $headers, 'post');
-
-        return $response;
-    }
-
-    /**
-     * Destroy a channel or set of channels.
-     *
-     * @param $channel
-     * @return \GuzzleHttp\Message\Response|mixed|string|void
-     * @throws \Pushman\PHPLib\Exceptions\InvalidChannelException
-     */
-    public function destroyChannel($channel)
-    {
-        $channels = $this->validateChannel($channel);
-
-        $arrayOfChannels = json_decode($channels, true);
-        if (in_array('public', $arrayOfChannels)) {
-            throw new InvalidDeleteRequestException('You cannot delete the public channel.');
+        if (strlen($private) !== 60) {
+            throw new InvalidConfigException('This cannot possibly be a valid private key.');
         }
-
-        $url = $this->getURL('channel');
-
-        $headers = [
-            'body' => [
-                'private' => $this->privateKey,
-                'channel' => $channels
-            ]
-        ];
-
-        $response = $this->processRequest($url, $headers, 'delete');
-
-        return $response;
-    }
-
-    /**
-     * Process a request and return the handled response.
-     *
-     * @param        $url
-     * @param        $headers
-     * @param string $method
-     * @return \GuzzleHttp\Message\Response|mixed|string|void
-     */
-    private function processRequest($url, $headers, $method = 'post')
-    {
-        if ($method == 'post') {
-            $response = $this->guzzle->post($url, $headers);
-        } elseif ($method == 'delete') {
-            $response = $this->guzzle->delete($url, $headers);
-        } else {
-            $params = $this->processGetParams($headers);
-            $response = $this->guzzle->get($url . $params);
-        }
-        $response = $this->processResponse($response);
-
-        return $response;
-    }
-
-    /**
-     * If we are doing a GET request, turn it into URL params.
-     *
-     * @param $headers
-     * @return string
-     */
-    private function processGetParams($headers)
-    {
-        $paramStrings = [];
-        foreach ($headers['body'] as $key => $value) {
-            $paramStrings[] = $key . "=" . $value;
-        }
-        $paramString = "?";
-        $paramString .= implode("&", $paramStrings);
-
-        return $paramString;
     }
 
     /**
@@ -280,6 +98,48 @@ class Pushman {
     }
 
     /**
+     * Set the client after initialisation. Used only for testing.
+     *
+     * @param \GuzzleHttp\Client $client
+     */
+    public function setClient(Client $client)
+    {
+        $this->guzzle = $client;
+    }
+
+    /**
+     * Push an event to Pushman, the most used command.
+     *
+     * @param        $event
+     * @param string $channel
+     * @param array  $payload
+     * @return string
+     * @throws \Pushman\PHPLib\Exceptions\InvalidChannelException
+     * @throws \Pushman\PHPLib\Exceptions\InvalidEventException
+     */
+    public function push($event, $channel = 'public', array $payload = [])
+    {
+        $payload = $this->preparePayload($payload);
+        $this->validateEvent($event);
+        $channels = $this->validateChannel($channel);
+
+        $url = $this->getURL();
+
+        $headers = [
+            'body' => [
+                'private'  => $this->privateKey,
+                'channels' => $channels,
+                'event'    => $event,
+                'payload'  => $payload
+            ]
+        ];
+
+        $response = $this->processRequest($url, $headers);
+
+        return $response;
+    }
+
+    /**
      * Encode a payload
      *
      * @param $payload
@@ -290,48 +150,6 @@ class Pushman {
         $payload = json_encode($payload);
 
         return $payload;
-    }
-
-    /**
-     * Get the URL of our Pushman instance.
-     * Defaults to the live site Push command.
-     *
-     * @param null $endpoint
-     * @return string
-     */
-    private function getURL($endpoint = null)
-    {
-        if (is_null($endpoint)) {
-            $endpoint = $this->getEndpoint();
-        } else {
-            $endpoint = '/api/' . $endpoint;
-        }
-
-        return $this->config['url'] . $endpoint;
-    }
-
-    /**
-     * Get the endpoint for the PUSH comment.
-     *
-     * @return string
-     */
-    private function getEndpoint()
-    {
-        return '/api/push';
-    }
-
-    /**
-     * Process a repsonse, get the JSON and output the decoded values.
-     *
-     * @param \GuzzleHttp\Message\Response $response
-     * @return \GuzzleHttp\Message\Response|mixed|string
-     */
-    private function processResponse(Response $response)
-    {
-        $response = $response->getBody()->getContents();
-        $response = json_decode($response, true);
-
-        return $response;
     }
 
     /**
@@ -348,19 +166,6 @@ class Pushman {
 
         if (strpos($event, ' ') !== false) {
             throw new InvalidEventException('No spaces are allowed in event names.');
-        }
-    }
-
-    /**
-     * Validate a private key.
-     *
-     * @param $private
-     * @throws \Pushman\PHPLib\Exceptions\InvalidConfigException
-     */
-    private function validatePrivatekey($private)
-    {
-        if (strlen($private) !== 60) {
-            throw new InvalidConfigException('This cannot possibly be a valid private key.');
         }
     }
 
@@ -398,5 +203,207 @@ class Pushman {
 
             return $channels;
         }
+    }
+
+    /**
+     * Get the URL of our Pushman instance.
+     * Defaults to the live site Push command.
+     *
+     * @param null $endpoint
+     * @return string
+     */
+    private function getURL($endpoint = null)
+    {
+        if (is_null($endpoint)) {
+            $endpoint = $this->getEndpoint();
+        } else {
+            $endpoint = '/api/' . $endpoint;
+        }
+
+        return $this->config['url'] . $endpoint;
+    }
+
+    /**
+     * Get the endpoint for the PUSH comment.
+     *
+     * @return string
+     */
+    private function getEndpoint()
+    {
+        return '/api/push';
+    }
+
+    /**
+     * Process a request and return the handled response.
+     *
+     * @param string $url
+     * @param array  $headers
+     * @param string $method
+     * @return string
+     */
+    private function processRequest($url, $headers, $method = 'post')
+    {
+        if (array_key_exists('body', $headers)) {
+            $headers['body'] = json_encode($headers['body']);
+        }
+
+        if ($method == 'post') {
+            $response = $this->guzzle->request('POST', $url, $headers);
+        } elseif ($method == 'delete') {
+            $response = $this->guzzle->request('DELETE', $url, $headers);
+        } else {
+            $params = $this->processGetParams($headers);
+            $response = $this->guzzle->request('GET', $url . $params);
+        }
+        $response = $this->processResponse($response);
+
+        return $response;
+    }
+
+    /**
+     * If we are doing a GET request, turn it into URL params.
+     *
+     * @param $headers
+     * @return string
+     */
+    private function processGetParams($headers)
+    {
+        $paramStrings = [];
+        foreach ($headers['body'] as $key => $value) {
+            $paramStrings[] = $key . "=" . $value;
+        }
+        $paramString = "?";
+        $paramString .= implode("&", $paramStrings);
+
+        return $paramString;
+    }
+
+    /**
+     * Process a repsonse, get the JSON and output the decoded values.
+     *
+     * @param Response $response
+     * @return Response|mixed|string
+     */
+    private function processResponse(Response $response)
+    {
+        $response = $response->getBody()->getContents();
+        $response = json_decode($response, true);
+
+        return $response;
+    }
+
+    /**
+     * Get the token of a single channel.
+     *
+     * @param $channel
+     * @return array
+     */
+    public function token($channel)
+    {
+        $channel = $this->channel($channel);
+
+        return ['token' => $channel['public'], 'expires' => $channel['token_expires']];
+    }
+
+    /**
+     * Get information on a single channel.
+     *
+     * @param $channel
+     * @return string
+     * @throws \Pushman\PHPLib\Exceptions\InvalidChannelException
+     */
+    public function channel($channel)
+    {
+        $channel = $this->validateChannel($channel, false);
+
+        $url = $this->getURL('channel');
+
+        $headers = [
+            'body' => [
+                'private' => $this->privateKey,
+                'channel' => $channel
+            ]
+        ];
+
+        $response = $this->processRequest($url, $headers, 'get');
+
+        return $response;
+    }
+
+    /**
+     * Get an array of channels in the site.
+     *
+     */
+    public function channels()
+    {
+        $url = $this->getURL('channels');
+
+        $headers = [
+            'body' => [
+                'private' => $this->privateKey
+            ]
+        ];
+
+        $response = $this->processRequest($url, $headers, 'get');
+
+        return $response;
+    }
+
+    /**
+     * Build a new channel or set of channels.
+     *
+     * @param $channel
+     * @return string
+     * @throws \Pushman\PHPLib\Exceptions\InvalidChannelException
+     */
+    public function buildChannel($channel, $max = 3, $refreshes = 'no')
+    {
+        $channels = $this->validateChannel($channel);
+
+        $url = $this->getURL('channel');
+
+        $headers = [
+            'body' => [
+                'private'   => $this->privateKey,
+                'channel'   => $channels,
+                'max'       => $max,
+                'refreshes' => $refreshes
+            ]
+        ];
+
+        $response = $this->processRequest($url, $headers, 'post');
+
+        return $response;
+    }
+
+    /**
+     * Destroy a channel or set of channels.
+     *
+     * @param $channel
+     * @return string
+     * @throws InvalidChannelException
+     * @throws InvalidDeleteRequestException
+     */
+    public function destroyChannel($channel)
+    {
+        $channels = $this->validateChannel($channel);
+
+        $arrayOfChannels = json_decode($channels, true);
+        if (in_array('public', $arrayOfChannels)) {
+            throw new InvalidDeleteRequestException('You cannot delete the public channel.');
+        }
+
+        $url = $this->getURL('channel');
+
+        $headers = [
+            'body' => [
+                'private' => $this->privateKey,
+                'channel' => $channels
+            ]
+        ];
+
+        $response = $this->processRequest($url, $headers, 'delete');
+
+        return $response;
     }
 }

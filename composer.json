@@ -1,27 +1,24 @@
 {
-    "name": "pushman/phplib",
-    "description": "The Pushman.dfl.mn PHP Library",
-    "type": "library",
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "George Miller",
-            "email": "github@duffleman.co.uk"
-        }
-    ],
-    "minimum-stability": "dev",
-    "autoload": {
-        "psr-4": {
-            "Pushman\\PHPLib\\": "src/"
-        }
-    },
-    "require": {
-        "guzzlehttp/guzzle": "^6.1"
-    },
-    "require-dev": {
-        "phpspec/phpspec": "~2.0"
-    },
-    "config": {
-        "bin-dir": "bin"
+  "name": "pushman/phplib",
+  "description": "The Pushman.dfl.mn PHP Library",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "George Miller",
+      "email": "github@duffleman.co.uk"
     }
+  ],
+  "minimum-stability": "dev",
+  "autoload": {
+    "psr-4": {
+      "Pushman\\PHPLib\\": "src/"
+    }
+  },
+  "require": {
+    "guzzlehttp/guzzle": "^6.1"
+  },
+  "config": {
+    "bin-dir": "bin"
+  }
 }
